@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --parchment: #f7f4ee;
+  --ink: #141018;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--parchment);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .museum-label {
+    @apply inline-block text-xs uppercase tracking-[0.25em] text-brass-dark font-sans font-semibold;
+  }
+  .exhibit-rule {
+    @apply h-px w-full bg-ink/10;
+  }
+}
