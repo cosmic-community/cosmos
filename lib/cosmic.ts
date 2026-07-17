@@ -1,5 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
-import { Post, Author, Category, hasStatus } from '@/types'
+import { Post, Author, Category, Page, hasStatus } from '@/types'
 
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
@@ -124,5 +124,18 @@ export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
   } catch (error) {
     if (hasStatus(error) && error.status === 404) return []
     throw new Error('Failed to fetch posts by author')
+  }
+}
+
+export async function getPage(slug: string): Promise<Page | null> {
+  try {
+    const response = await cosmic.objects
+      .findOne({ type: 'pages', slug })
+      .props(['id', 'slug', 'title', 'metadata'])
+      .depth(1)
+    return response.object as Page
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) return null
+    throw new Error('Failed to fetch page')
   }
 }

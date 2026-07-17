@@ -49,6 +49,15 @@ export interface Post extends CosmicObject {
   };
 }
 
+export interface Page extends CosmicObject {
+  type: 'pages';
+  metadata: {
+    content?: string;
+    hero_image?: CosmicImage | string;
+    seo_description?: string;
+  };
+}
+
 export interface CosmicResponse<T> {
   objects: T[];
   total: number;
