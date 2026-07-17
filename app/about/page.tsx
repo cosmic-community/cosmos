@@ -31,8 +31,10 @@ function renderMarkdown(markdown: string): string {
       if (!trimmed) return ''
       const heading = trimmed.match(/^(#{1,6})\s+(.*)$/)
       if (heading) {
-        const level = heading[1].length
-        return `<h${level}>${inline(heading[2])}</h${level}>`
+        const hashes = heading[1] ?? ''
+        const text = heading[2] ?? ''
+        const level = Math.min(hashes.length, 6)
+        return `<h${level}>${inline(text)}</h${level}>`
       }
       return `<p>${inline(trimmed.replace(/\n/g, ' '))}</p>`
     })
