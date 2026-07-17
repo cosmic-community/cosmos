@@ -35,6 +35,12 @@ export default function Header() {
           >
             Curators
           </Link>
+          <Link
+            href="/about"
+            className="text-ink/70 hover:text-ink transition-colors"
+          >
+            About
+          </Link>
         </nav>
       </div>
     </header>
