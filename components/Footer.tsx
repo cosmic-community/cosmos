@@ -38,6 +38,14 @@ export default function Footer() {
                 Curators
               </Link>
             </li>
+            <li>
+              <Link
+                href="/about"
+                className="hover:text-parchment transition-colors"
+              >
+                About
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
