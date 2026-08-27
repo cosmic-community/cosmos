@@ -31,8 +31,8 @@ function renderMarkdown(markdown: string): string {
       if (!trimmed) return ''
       const heading = trimmed.match(/^(#{1,6})\s+(.*)$/)
       if (heading) {
-        const hashes = heading[1] ?? ''
-        const text = heading[2] ?? ''
+        const hashes: string = heading[1] ?? ''
+        const text: string = heading[2] ?? ''
         const level = Math.min(hashes.length, 6)
         return `<h${level}>${inline(text)}</h${level}>`
       }
@@ -55,8 +55,9 @@ export default async function AboutPage() {
     notFound()
   }
 
-  const content = page.metadata?.content || ''
-  const heroUrl = getImageUrl(page.metadata?.hero_image)
+  // Normalize to guaranteed strings so the renderer is type-safe
+  const content: string = page.metadata?.content ?? ''
+  const heroUrl: string = getImageUrl(page.metadata?.hero_image)
 
   return (
     <div className="max-w-exhibit mx-auto px-6 py-16">
