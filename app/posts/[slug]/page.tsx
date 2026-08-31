@@ -2,6 +2,8 @@
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { getPost, getMetafieldValue } from '@/lib/cosmic'
 import { formatDate } from '@/lib/format'
 import PreviewBanner from '@/components/PreviewBanner'
@@ -107,10 +109,9 @@ export default async function PostPage({
         )}
 
         {content && (
-          <div
-            className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-ink prose-a:text-brass-dark"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
+          <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-ink prose-a:text-brass-dark">
+            <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
+          </div>
         )}
 
         {tags && tags.length > 0 && (
