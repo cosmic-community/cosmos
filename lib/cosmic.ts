@@ -110,11 +110,14 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
-export async function getCategory(slug: string): Promise<Category | null> {
+export async function getCategory(
+  slug: string,
+  previewToken?: string | null
+): Promise<Category | null> {
   try {
-    const response = await cosmic.objects
-      .findOne({ type: 'categories', slug })
-      .depth(1)
+    const client = getCosmic(previewToken)
+    const query = client.objects.findOne({ type: 'categories', slug }).depth(1)
+    const response = previewToken ? await query.status('any') : await query
     return response.object as Category
   } catch (error) {
     if (hasStatus(error) && error.status === 404) return null
@@ -148,11 +151,14 @@ export async function getAuthors(): Promise<Author[]> {
   }
 }
 
-export async function getAuthor(slug: string): Promise<Author | null> {
+export async function getAuthor(
+  slug: string,
+  previewToken?: string | null
+): Promise<Author | null> {
   try {
-    const response = await cosmic.objects
-      .findOne({ type: 'authors', slug })
-      .depth(1)
+    const client = getCosmic(previewToken)
+    const query = client.objects.findOne({ type: 'authors', slug }).depth(1)
+    const response = previewToken ? await query.status('any') : await query
     return response.object as Author
   } catch (error) {
     if (hasStatus(error) && error.status === 404) return null
@@ -173,12 +179,17 @@ export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
   }
 }
 
-export async function getPage(slug: string): Promise<Page | null> {
+export async function getPage(
+  slug: string,
+  previewToken?: string | null
+): Promise<Page | null> {
   try {
-    const response = await cosmic.objects
+    const client = getCosmic(previewToken)
+    const query = client.objects
       .findOne({ type: 'pages', slug })
       .props(['id', 'slug', 'title', 'metadata'])
       .depth(1)
+    const response = previewToken ? await query.status('any') : await query
     return response.object as Page
   } catch (error) {
     if (hasStatus(error) && error.status === 404) return null
