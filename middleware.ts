@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Allow the Cosmic dashboard to embed the site in its preview iframe.
+// localhost origins support running the dashboard locally against this site.
 const CSP_FRAME_ANCESTORS =
-  "frame-ancestors 'self' https://app.cosmicjs.com https://*.cosmicjs.com"
+  "frame-ancestors 'self' http://localhost:3040 http://localhost:3000 https://app.cosmicjs.com https://*.cosmicjs.com"
 
 const PREVIEW_COOKIE = 'cosmic_preview'
 const PREVIEW_MAX_AGE = 60 * 60 // 1 hour
