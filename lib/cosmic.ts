@@ -8,6 +8,25 @@ export const cosmic = createBucketClient({
   apiEnvironment: 'staging',
 })
 
+type BucketConfig = Parameters<typeof createBucketClient>[0]
+
+/**
+ * Server-only. Returns a Cosmic client scoped to a preview token when one is
+ * present, otherwise the shared published-content client. Never call this from
+ * a client component: the token and write key must not reach the browser.
+ */
+export function getCosmic(previewToken?: string | null) {
+  if (!previewToken) return cosmic
+
+  return createBucketClient({
+    bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
+    readKey: process.env.COSMIC_READ_KEY as string,
+    writeKey: process.env.COSMIC_WRITE_KEY as string,
+    apiEnvironment: 'staging',
+    previewToken,
+  } as BucketConfig)
+}
+
 export function getMetafieldValue(field: unknown): string {
   if (field === null || field === undefined) return ''
   if (typeof field === 'string') return field
@@ -39,15 +58,42 @@ export async function getPosts(): Promise<Post[]> {
   }
 }
 
-export async function getPost(slug: string): Promise<Post | null> {
+export async function getPost(
+  slug: string,
+  previewToken?: string | null
+): Promise<Post | null> {
   try {
-    const response = await cosmic.objects
-      .findOne({ type: 'posts', slug })
-      .depth(1)
+    const client = getCosmic(previewToken)
+    const query = client.objects.findOne({ type: 'posts', slug }).depth(1)
+    const response = previewToken ? await query.status('any') : await query
     return response.object as Post
   } catch (error) {
     if (hasStatus(error) && error.status === 404) return null
     throw new Error('Failed to fetch post')
+  }
+}
+
+/**
+ * Look up any object by id. Used by the preview route to resolve an object id
+ * coming from the Cosmic dashboard into a slug it can redirect to.
+ */
+export async function getObjectById(
+  id: string,
+  previewToken?: string | null
+): Promise<{ id: string; slug: string; type: string } | null> {
+  try {
+    const client = getCosmic(previewToken)
+    const query = client.objects.findOne({ id }).props(['id', 'slug', 'type'])
+    const response = previewToken ? await query.status('any') : await query
+    const object = response.object as
+      | { id?: string; slug?: string; type?: string }
+      | undefined
+
+    if (!object || !object.id || !object.slug || !object.type) return null
+    return { id: object.id, slug: object.slug, type: object.type }
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) return null
+    return null
   }
 }
 

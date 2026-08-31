@@ -1,23 +1,43 @@
 // app/posts/[slug]/page.tsx
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { getPost, getMetafieldValue } from '@/lib/cosmic'
 import { formatDate } from '@/lib/format'
+import PreviewBanner from '@/components/PreviewBanner'
 
 export const revalidate = 60
 
+function firstValue(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0]
+  return value
+}
+
 export default async function PostPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { slug } = await params
-  const post = await getPost(slug)
+  const resolvedSearchParams = await searchParams
+
+  // Token arrives on the query string from the dashboard Preview button, and is
+  // persisted to an httpOnly cookie by middleware for subsequent navigations.
+  const cookieStore = await cookies()
+  const previewToken =
+    firstValue(resolvedSearchParams?.preview_token) ??
+    cookieStore.get('cosmic_preview')?.value ??
+    null
+
+  const post = await getPost(slug, previewToken)
 
   if (!post) {
     notFound()
   }
 
+  const isPreview = Boolean(previewToken)
   const image = post.metadata?.featured_image
   const category = post.metadata?.category
   const author = post.metadata?.author
@@ -27,6 +47,7 @@ export default async function PostPage({
 
   return (
     <article>
+      {isPreview && <PreviewBanner />}
       <header className="relative bg-cosmos text-parchment">
         {image && (
           <div className="absolute inset-0">
